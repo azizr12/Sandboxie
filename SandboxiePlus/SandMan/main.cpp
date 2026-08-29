@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
 #endif
 
 	QtSingleApplication app(argc, argv);
+	app.setLayoutDirection(Qt::LeftToRight);
 	app.setQuitOnLastWindowClosed(false);
 
 	bool UseW11Style = theConf->GetBool("Options/UseW11Style", false);
