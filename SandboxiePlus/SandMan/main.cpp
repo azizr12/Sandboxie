@@ -84,6 +84,16 @@ int main(int argc, char *argv[])
 #endif
 
 	QtSingleApplication app(argc, argv);
+	// 1. Force Qt to use Left-To-Right layout globally
+	app.setLayoutDirection(Qt::LeftToRight);
+
+	// 2. Prevent Windows OS from forcing RTL layout at the process level
+	typedef BOOL (WINAPI *P_SetProcessDefaultLayout)(DWORD dwDefaultLayout);
+	P_SetProcessDefaultLayout pSetProcessDefaultLayout = 
+		(P_SetProcessDefaultLayout)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetProcessDefaultLayout");
+	if (pSetProcessDefaultLayout) {
+		pSetProcessDefaultLayout(0); // 0 forces LTR (LAYOUT_LTR), 1 forces RTL (LAYOUT_RTL)
+	}
 	app.setQuitOnLastWindowClosed(false);
 
 	bool UseW11Style = theConf->GetBool("Options/UseW11Style", false);
