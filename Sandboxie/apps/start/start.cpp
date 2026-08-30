@@ -2572,8 +2572,18 @@ int __stdcall WinMainCRTStartup(
     USHORT KeyState;
     STARTUPINFO si;
 
-    Sandboxie_Start_Title = SbieDll_FormatMessage0(MSG_3101);
-    SbieDll_GetLanguage(&layout_rtl);
+	Sandboxie_Start_Title = SbieDll_FormatMessage0(MSG_3101);
+	// 1. Prevent Windows OS from forcing RTL layout at the process level
+	typedef BOOL (WINAPI *P_SetProcessDefaultLayout)(DWORD dwDefaultLayout);
+	P_SetProcessDefaultLayout pSetProcessDefaultLayout = 
+		(P_SetProcessDefaultLayout)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetProcessDefaultLayout");
+	if (pSetProcessDefaultLayout) {
+		pSetProcessDefaultLayout(0); // 0 forces LTR (LAYOUT_LTR)
+	}
+
+	// 2. Override the internal RTL flag to always be FALSE
+	SbieDll_GetLanguage(&layout_rtl);
+	layout_rtl = FALSE; // Hardcode to LTR regardless of system language
 
     if(!NT_SUCCESS(SbieApi_QueryConfAsIs(L"GlobalSettings", L"DefaultBox", 0, BoxName, sizeof(BoxName))) || *BoxName == L'\0')
         wcscpy(BoxName, L"DefaultBox");
