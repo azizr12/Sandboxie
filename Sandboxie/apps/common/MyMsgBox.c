@@ -277,19 +277,21 @@ _FX void MyInputBox_InsertEditBox(HWND hwnd)
         child = GetWindow(child, GW_HWNDNEXT);
     }
 
-    //
-    // create an edit box
-    //
+	//
+	// create an edit box
+	//
+	oldStyleEx = GetWindowLong(hwnd, GWL_EXSTYLE);
+	
+	// FORCE LTR: Strip RTL layout inheritance for this custom dialog
+	SetWindowLong(hwnd, GWL_EXSTYLE, (oldStyleEx & ~WS_EX_LAYOUTRTL) | WS_EX_NOINHERITLAYOUT);
 
-    oldStyleEx = GetWindowLong(hwnd, GWL_EXSTYLE);
-    SetWindowLong(hwnd, GWL_EXSTYLE, oldStyleEx | WS_EX_NOINHERITLAYOUT);
+	edit = CreateWindowEx(
+		WS_EX_CLIENTEDGE | WS_EX_LEFT | WS_EX_LTRREADING, // Explicitly force LTR styles
+		L"EDIT", L"",
+		WS_CHILD | WS_VISIBLE | MyInputBox_EditStyle | ES_LEFT,
+		0, 0, -1, -1, hwnd, (HMENU)'tz', NULL, NULL);
 
-    edit = CreateWindowEx(
-        WS_EX_CLIENTEDGE, L"EDIT", L"",
-        WS_CHILD | WS_VISIBLE | MyInputBox_EditStyle,
-        0, 0, -1, -1, hwnd, (HMENU)'tz', NULL, NULL);
-
-    SetWindowLong(hwnd, GWL_EXSTYLE, oldStyleEx);
+	SetWindowLong(hwnd, GWL_EXSTYLE, oldStyleEx);
 
     dc = GetDC(edit);
     font = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
