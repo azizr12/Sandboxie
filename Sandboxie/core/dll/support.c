@@ -351,7 +351,6 @@ _FX ULONG SbieDll_GetLanguage(BOOLEAN *rtl)
 
     if (rtl) {
         if (lang == 1037 ||             /* Hebrew */
-			lang == 1025)               /* Arabic */
             *rtl = TRUE;
         else
             *rtl = FALSE;
