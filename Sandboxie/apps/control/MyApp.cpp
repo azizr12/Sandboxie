@@ -154,11 +154,18 @@ BOOL CMyApp::InitInstance()
 //#else
 //    Enable3dControlsStatic();
 //#endif
+	// 1. Prevent Windows OS from forcing RTL layout at the process level
+	typedef BOOL (WINAPI *P_SetProcessDefaultLayout)(DWORD dwDefaultLayout);
+	P_SetProcessDefaultLayout pSetProcessDefaultLayout = 
+		(P_SetProcessDefaultLayout)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetProcessDefaultLayout");
+	if (pSetProcessDefaultLayout) {
+		pSetProcessDefaultLayout(0); // 0 forces LTR (LAYOUT_LTR)
+	}
 
-    BOOLEAN LayoutRTL;
-    SbieDll_GetLanguage(&LayoutRTL);
-    if (LayoutRTL)
-        m_LayoutRTL = true;
+	// 2. Override the internal RTL flag to always be FALSE
+	BOOLEAN LayoutRTL;
+	SbieDll_GetLanguage(&LayoutRTL);
+	m_LayoutRTL = false; // Hardcode to LTR regardless of system language
 
     m_appTitle = CMyMsg(MSG_3301);
 
